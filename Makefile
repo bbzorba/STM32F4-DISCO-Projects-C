@@ -1,7 +1,7 @@
 # STM32 Multi-Project Makefile
 # Set PROJECT to the subfolder name (e.g., LED_Blink)
 
-PROJECT=LED_Blink
+PROJECT=Projects/LCD_Screen
 SRCDIR=$(PROJECT)/src
 INCDIR=$(PROJECT)/inc
 BUILDDIR=$(PROJECT)/build
@@ -15,11 +15,15 @@ SIZE=arm-none-eabi-size
 OPENOCD=openocd
 
 # Source and object files
-SRCS=$(SRCDIR)/main.c $(SRCDIR)/startup.c $(SRCDIR)/system_stm32f4xx.c
+SRCS=$(wildcard $(SRCDIR)/*.c) \
+  $(wildcard Drivers/STM32F4xx_HAL_Driver/*.c)
 OBJS=$(SRCS:.c=.o)
 
 # Flags
-CFLAGS=-mcpu=cortex-m4 -mthumb -O2 -Wall -ffreestanding -nostdlib -I$(INCDIR) -g
+CFLAGS=-mcpu=cortex-m4 -mthumb -O2 -Wall -ffreestanding -nostdlib \
+  -IDrivers/STM32F4xx_HAL_Driver \
+  -IDrivers/CMSIS \
+  -I$(INCDIR) -g
 LDFLAGS=-T$(LINKER) -nostdlib -ffreestanding -mcpu=cortex-m4 -mthumb -Wl,-Map=$(PROJECT)/main.map
 
 # Output files
@@ -48,7 +52,8 @@ $(SRCDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	del /Q $(SRCDIR)\*.o $(ELF) $(BIN) $(HEX) $(MAP)
+	cd $(SRCDIR) && del /Q *.o
+	cd $(PROJECT) && del /Q main.elf main.bin main.hex main.map
 
 flash: $(ELF)
 	$(OPENOCD) -f interface/stlink.cfg -f target/stm32f4x.cfg -c "program $< verify reset exit"
