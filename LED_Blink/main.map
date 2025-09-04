@@ -1,0 +1,129 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x08000000         0x00100000         xr
+RAM              0x20000000         0x00020000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD src/main.o
+LOAD src/startup.o
+LOAD src/system_stm32f4xx.o
+
+.isr_vector     0x08000000       0x40
+ *(.isr_vector)
+ .isr_vector    0x08000000       0x40 src/startup.o
+                0x08000000                vector_table
+
+.text           0x08000040       0xc8
+ *(.text*)
+ .text          0x08000040       0x54 src/main.o
+                0x08000040                init
+                0x08000078                delay
+ .text.startup  0x08000094       0x64 src/main.o
+                0x08000094                main
+ .text          0x080000f8        0xc src/startup.o
+                0x080000f8                Default_Handler
+                0x080000fc                Reset_Handler
+ .text          0x08000104        0x4 src/system_stm32f4xx.o
+                0x08000104                SystemInit
+ *(.rodata*)
+ *(.glue_7)
+ .glue_7        0x08000108        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x08000108        0x0 linker stubs
+
+.vfp11_veneer   0x08000108        0x0
+ .vfp11_veneer  0x08000108        0x0 linker stubs
+
+.v4_bx          0x08000108        0x0
+ .v4_bx         0x08000108        0x0 linker stubs
+
+.iplt           0x08000108        0x0
+ .iplt          0x08000108        0x0 src/main.o
+
+.rel.dyn        0x08000108        0x0
+ .rel.iplt      0x08000108        0x0 src/main.o
+
+.data           0x20000000        0x0 load address 0x08000108
+ *(.data*)
+ .data          0x20000000        0x0 src/main.o
+ .data          0x20000000        0x0 src/startup.o
+ .data          0x20000000        0x0 src/system_stm32f4xx.o
+
+.igot.plt       0x20000000        0x0 load address 0x08000108
+ .igot.plt      0x20000000        0x0 src/main.o
+
+.bss            0x20000000        0x0 load address 0x08000108
+ *(.bss*)
+ .bss           0x20000000        0x0 src/main.o
+ .bss           0x20000000        0x0 src/startup.o
+ .bss           0x20000000        0x0 src/system_stm32f4xx.o
+ *(COMMON)
+
+.stack          0x20000000      0x400 load address 0x08000108
+                0x20000000                . = ALIGN (0x8)
+                0x20000000                _stack = .
+                0x20000400                . = (. + 0x400)
+ *fill*         0x20000000      0x400 
+OUTPUT(main.elf elf32-littlearm)
+LOAD linker stubs
+
+.debug_info     0x00000000      0x546
+ .debug_info    0x00000000      0x3eb src/main.o
+ .debug_info    0x000003eb       0xdd src/startup.o
+ .debug_info    0x000004c8       0x7e src/system_stm32f4xx.o
+
+.debug_abbrev   0x00000000      0x22c
+ .debug_abbrev  0x00000000      0x12e src/main.o
+ .debug_abbrev  0x0000012e       0xba src/startup.o
+ .debug_abbrev  0x000001e8       0x44 src/system_stm32f4xx.o
+
+.debug_loc      0x00000000       0x4e
+ .debug_loc     0x00000000       0x4e src/main.o
+
+.debug_aranges  0x00000000       0x68
+ .debug_aranges
+                0x00000000       0x28 src/main.o
+ .debug_aranges
+                0x00000028       0x20 src/startup.o
+ .debug_aranges
+                0x00000048       0x20 src/system_stm32f4xx.o
+
+.debug_ranges   0x00000000       0x78
+ .debug_ranges  0x00000000       0x78 src/main.o
+
+.debug_line     0x00000000      0x2ec
+ .debug_line    0x00000000      0x210 src/main.o
+ .debug_line    0x00000210       0x93 src/startup.o
+ .debug_line    0x000002a3       0x49 src/system_stm32f4xx.o
+
+.debug_str      0x00000000      0x2cc
+ .debug_str     0x00000000      0x271 src/main.o
+                                0x2aa (size before relaxing)
+ .debug_str     0x00000271       0x39 src/startup.o
+                                0x16b (size before relaxing)
+ .debug_str     0x000002aa       0x22 src/system_stm32f4xx.o
+                                0x14f (size before relaxing)
+
+.comment        0x00000000       0x49
+ .comment       0x00000000       0x49 src/main.o
+                                 0x4a (size before relaxing)
+ .comment       0x00000049       0x4a src/startup.o
+ .comment       0x00000049       0x4a src/system_stm32f4xx.o
+
+.ARM.attributes
+                0x00000000       0x2e
+ .ARM.attributes
+                0x00000000       0x2e src/main.o
+ .ARM.attributes
+                0x0000002e       0x2e src/startup.o
+ .ARM.attributes
+                0x0000005c       0x2e src/system_stm32f4xx.o
+
+.debug_frame    0x00000000       0xa8
+ .debug_frame   0x00000000       0x50 src/main.o
+ .debug_frame   0x00000050       0x38 src/startup.o
+ .debug_frame   0x00000088       0x20 src/system_stm32f4xx.o
